@@ -23,17 +23,67 @@ pub const VM = struct {
     }
 
     pub fn execWord(self: *VM, word: []const u8) !void {
-        if (eql(u8, word, "+")) {
-            const x = try self.stack.pop();
-            const y = try self.stack.pop();
-            try self.stack.push(x + y);
+        if (builtins.get(word)) |op| {
+            try op(self);
         } else {
-            return error.unknownWord;
+            return error.UnknownWord;
         }
     }
 };
 
-// pub const Word = struct {
-//     literal: []const u8,
-//     block: *const fn (*VM) anyerror!void,
-// };
+const builtins = std.StaticStringMap(*const fn (*VM) anyerror!void).initComptime(.{
+    .{ "+", &opAdd },
+    .{ "-", &opSubtract },
+    .{ "*", &opMult },
+    .{ "/", &opDiv },
+    .{ ".", &opDot },
+    .{ "dup", &opDup },
+    .{ "swap", &opSwap },
+    .{ "clear", &opClear },
+    .{ "bye", &opQuit },
+});
+
+fn opDot(vm: *VM) !void {
+    std.debug.print("{}\n", .{try vm.stack.pop()});
+}
+
+fn opQuit(vm: *VM) !void {
+    _ = vm; // autofix
+    std.process.exit(0);
+}
+
+fn opDup(vm: *VM) !void {
+    try vm.stack.push(try vm.stack.peek());
+}
+
+fn opSwap(vm: *VM) !void {
+    try vm.stack.swap();
+}
+
+fn opClear(vm: *VM) !void {
+    vm.stack.top = 0;
+}
+
+fn opAdd(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(x + y);
+}
+
+fn opSubtract(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(x - y);
+}
+
+fn opMult(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(x * y);
+}
+
+fn opDiv(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(@divTrunc(x, y));
+}

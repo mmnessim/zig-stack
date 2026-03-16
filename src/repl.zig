@@ -25,7 +25,10 @@ pub fn repl(vm: *VM) !void {
         const bare_line = try stdin.takeDelimiter('\n') orelse break;
         const trimmed = std.mem.trim(u8, bare_line, "\r \t");
 
-        if (trimmed.len == 0) continue;
+        if (trimmed.len == 0) {
+            try vm.stack.print_stack();
+            continue;
+        }
         const tokens = try tokenize(trimmed, vm.allocator);
         defer vm.allocator.free(tokens);
         vm.eval(tokens) catch |err| {

@@ -35,10 +35,11 @@ pub const Stack = struct {
 
     pub fn print_stack(self: *Stack) !void {
         if (self.top == 0) return;
+        std.debug.print("  ", .{});
         for (self.items[0..self.top]) |item| {
             std.debug.print("{} ", .{item});
         }
-        std.debug.print("\n", .{});
+        std.debug.print("<- top\n", .{});
     }
 };
 
