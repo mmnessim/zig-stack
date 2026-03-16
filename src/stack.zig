@@ -25,6 +25,13 @@ pub const Stack = struct {
         if (self.top < 2) return error.StackUnderflow;
         std.mem.swap(i64, &self.items[self.top - 1], &self.items[self.top - 2]);
     }
+
+    pub fn add(self: *Stack) !void {
+        if (self.top < 2) return error.StackUnderflow;
+        const x = try self.pop();
+        const y = try self.pop();
+        try self.push(x + y);
+    }
 };
 
 test "push and pop" {
