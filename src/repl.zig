@@ -25,6 +25,8 @@ pub fn repl(vm: *VM) !void {
 
         if (trimmed.len == 0) continue;
         if (std.mem.eql(u8, trimmed, "bye")) break;
+        // TODO:
+        // Remove all these checks and properly handle tokenizing
         if (std.mem.eql(u8, trimmed, ".")) {
             const val = vm.stack.pop() catch |err| {
                 std.debug.print("{}\n", .{err});
