@@ -1,5 +1,7 @@
 const std = @import("std");
+
 const Stack = @import("stack.zig").Stack;
+const tokenize = @import("token.zig").tokenize;
 const VM = @import("vm.zig").VM;
 
 pub fn repl(vm: *VM) !void {
@@ -24,35 +26,12 @@ pub fn repl(vm: *VM) !void {
         const trimmed = std.mem.trim(u8, bare_line, "\r \t");
 
         if (trimmed.len == 0) continue;
-        if (std.mem.eql(u8, trimmed, "bye")) break;
-        // TODO:
-        // Remove all these checks and properly handle tokenizing
-        if (std.mem.eql(u8, trimmed, ".")) {
-            const val = vm.stack.pop() catch |err| {
-                std.debug.print("{}\n", .{err});
-                continue;
-            };
-            try stdout.print("popped: {}\n", .{val});
-            continue;
-        }
-        if (std.mem.eql(u8, trimmed, "swap")) {
-            try vm.stack.swap();
-            try vm.stack.print_stack();
-            continue;
-        }
-        if (std.mem.eql(u8, trimmed, "+")) {
-            try vm.stack.add();
-            try vm.stack.print_stack();
-            continue;
-        }
-
-        const parsed: i64 = std.fmt.parseInt(i64, trimmed, 10) catch |err| {
+        const tokens = try tokenize(trimmed, vm.allocator);
+        defer vm.allocator.free(tokens);
+        vm.eval(tokens) catch |err| {
             std.debug.print("{}\n", .{err});
-            try vm.stack.print_stack();
-
             continue;
         };
-        try vm.stack.push(parsed);
         try vm.stack.print_stack();
     }
 }
