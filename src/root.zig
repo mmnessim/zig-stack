@@ -3,3 +3,4 @@ const std = @import("std");
 
 pub const Stack = @import("stack.zig").Stack;
 pub const Repl = @import("repl.zig");
+pub const VM = @import("vm.zig").VM;

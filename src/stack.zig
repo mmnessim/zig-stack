@@ -27,10 +27,18 @@ pub const Stack = struct {
     }
 
     pub fn add(self: *Stack) !void {
-        if (self.top < 2) return error.StackUnderflow;
+        if (self.top < 1) return error.StackUnderflow;
         const x = try self.pop();
         const y = try self.pop();
         try self.push(x + y);
+    }
+
+    pub fn print_stack(self: *Stack) !void {
+        if (self.top == 0) return;
+        for (self.items[0..self.top]) |item| {
+            std.debug.print("{} ", .{item});
+        }
+        std.debug.print("\n", .{});
     }
 };
 
