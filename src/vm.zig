@@ -36,9 +36,18 @@ const builtins = std.StaticStringMap(*const fn (*VM) anyerror!void).initComptime
     .{ "-", &opSubtract },
     .{ "*", &opMult },
     .{ "/", &opDiv },
+    .{ "mod", &opMod },
+    .{ "=", &opEq },
+    .{ "<", &opLessThan },
+    .{ "<=", &opLessThanEq },
+    .{ ">", &opGreaterThan },
+    .{ ">=", &opGreaterThanEq },
+    .{ "!=", &opNotEq },
     .{ ".", &opDot },
     .{ "dup", &opDup },
     .{ "swap", &opSwap },
+    .{ "drop", &opDrop },
+    .{ "over", &opOver },
     .{ "clear", &opClear },
     .{ "bye", &opQuit },
 });
@@ -54,6 +63,15 @@ fn opQuit(vm: *VM) !void {
 
 fn opDup(vm: *VM) !void {
     try vm.stack.push(try vm.stack.peek());
+}
+
+fn opDrop(vm: *VM) !void {
+    _ = try vm.stack.pop();
+}
+
+fn opOver(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
+    try vm.stack.push(vm.stack.items[vm.stack.top - 2]);
 }
 
 fn opSwap(vm: *VM) !void {
@@ -86,4 +104,52 @@ fn opDiv(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(@divTrunc(x, y));
+}
+
+fn opMod(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(@rem(x, y));
+}
+
+fn opEq(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x == y) 1 else 0;
+    try vm.stack.push(res);
+}
+
+fn opLessThan(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x < y) 1 else 0;
+    try vm.stack.push(res);
+}
+
+fn opGreaterThan(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x > y) 1 else 0;
+    try vm.stack.push(res);
+}
+
+fn opLessThanEq(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x <= y) 1 else 0;
+    try vm.stack.push(res);
+}
+
+fn opGreaterThanEq(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x >= y) 1 else 0;
+    try vm.stack.push(res);
+}
+
+fn opNotEq(vm: *VM) !void {
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    const res: i64 = if (x != y) 1 else 0;
+    try vm.stack.push(res);
 }
