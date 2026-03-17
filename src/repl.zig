@@ -26,7 +26,7 @@ pub fn repl(vm: *VM) !void {
         const trimmed = std.mem.trim(u8, bare_line, "\r \t");
 
         if (trimmed.len == 0) {
-            try vm.stack.print_stack();
+            try vm.stack.print_stack(stdout);
             continue;
         }
         const tokens = try tokenize(trimmed, vm.allocator);
@@ -35,6 +35,6 @@ pub fn repl(vm: *VM) !void {
             std.debug.print("{}\n", .{err});
             continue;
         };
-        try vm.stack.print_stack();
+        try vm.stack.print_stack(stdout);
     }
 }

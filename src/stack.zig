@@ -3,22 +3,22 @@ const std = @import("std");
 const Value = @import("token.zig").Value;
 
 pub const Stack = struct {
-    items: [256]i64 = undefined,
+    items: [256]Value = undefined,
     top: usize = 0, // next position to be filled
 
-    pub fn push(self: *Stack, val: i64) !void {
+    pub fn push(self: *Stack, val: Value) !void {
         if (self.top >= self.items.len) return error.StackOverflow;
         self.items[self.top] = val;
         self.top += 1;
     }
 
-    pub fn pop(self: *Stack) !i64 {
+    pub fn pop(self: *Stack) !Value {
         if (self.top == 0) return error.StackUnderflow;
         self.top -= 1;
         return self.items[self.top];
     }
 
-    pub fn peek(self: *Stack) !i64 {
+    pub fn peek(self: *Stack) !Value {
         if (self.top == 0) return error.StackUnderflow;
         return self.items[self.top - 1];
     }
@@ -32,16 +32,20 @@ pub const Stack = struct {
         if (self.top < 1) return error.StackUnderflow;
         const x = try self.pop();
         const y = try self.pop();
-        try self.push(x + y);
+        if (x == .number and y == .number) {
+            try self.push(x + y);
+        } else {
+            return error.TypeError;
+        }
     }
 
-    pub fn print_stack(self: *Stack) !void {
+    pub fn print_stack(self: *Stack, writer: *std.Io.Writer) !void {
         if (self.top == 0) return;
-        std.debug.print("  ", .{});
+        try writer.print("  ", .{});
         for (self.items[0..self.top]) |item| {
-            std.debug.print("{} ", .{item});
+            try writer.print("{f} ", .{item});
         }
-        std.debug.print("<- top\n", .{});
+        try writer.print("<- top\n", .{});
     }
 };
 
