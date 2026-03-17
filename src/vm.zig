@@ -85,13 +85,13 @@ fn opClear(vm: *VM) !void {
 fn opAdd(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    try vm.stack.push(x + y);
+    try vm.stack.push(y + x);
 }
 
 fn opSubtract(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    try vm.stack.push(x - y);
+    try vm.stack.push(y - x);
 }
 
 fn opMult(vm: *VM) !void {
@@ -103,26 +103,26 @@ fn opMult(vm: *VM) !void {
 fn opDiv(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    try vm.stack.push(@divTrunc(x, y));
+    try vm.stack.push(@divTrunc(y, x));
 }
 
 fn opMod(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    try vm.stack.push(@rem(x, y));
+    try vm.stack.push(@rem(y, x));
 }
 
 fn opEq(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    const res: i64 = if (x == y) 1 else 0;
+    const res: i64 = if (y == x) 1 else 0;
     try vm.stack.push(res);
 }
 
 fn opLessThan(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    const res: i64 = if (x < y) 1 else 0;
+    const res: i64 = if (y < x) 1 else 0;
     try vm.stack.push(res);
 }
 
@@ -136,20 +136,20 @@ fn opGreaterThan(vm: *VM) !void {
 fn opLessThanEq(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    const res: i64 = if (x <= y) 1 else 0;
+    const res: i64 = if (y <= x) 1 else 0;
     try vm.stack.push(res);
 }
 
 fn opGreaterThanEq(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    const res: i64 = if (x >= y) 1 else 0;
+    const res: i64 = if (y >= x) 1 else 0;
     try vm.stack.push(res);
 }
 
 fn opNotEq(vm: *VM) !void {
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
-    const res: i64 = if (x != y) 1 else 0;
+    const res: i64 = if (y != x) 1 else 0;
     try vm.stack.push(res);
 }
