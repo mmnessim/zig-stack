@@ -15,7 +15,12 @@ pub const VM = struct {
     pub fn eval(self: *VM, tokens: []Token) !void {
         for (tokens) |tok| {
             switch (tok) {
-                .number => |n| try self.stack.push(n),
+                .value => |v| {
+                    switch (v) {
+                        .number => |n| try self.stack.push(n),
+                        else => {},
+                    }
+                },
                 .word => |w| try self.execWord(w),
                 .eof => break,
             }
@@ -75,6 +80,7 @@ fn opOver(vm: *VM) !void {
 }
 
 fn opSwap(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     try vm.stack.swap();
 }
 
@@ -83,36 +89,42 @@ fn opClear(vm: *VM) !void {
 }
 
 fn opAdd(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(y + x);
 }
 
 fn opSubtract(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(y - x);
 }
 
 fn opMult(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(x * y);
 }
 
 fn opDiv(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(@divTrunc(y, x));
 }
 
 fn opMod(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     try vm.stack.push(@rem(y, x));
 }
 
 fn opEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (y == x) 1 else 0;
@@ -120,6 +132,7 @@ fn opEq(vm: *VM) !void {
 }
 
 fn opLessThan(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (y < x) 1 else 0;
@@ -127,6 +140,7 @@ fn opLessThan(vm: *VM) !void {
 }
 
 fn opGreaterThan(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (x > y) 1 else 0;
@@ -134,6 +148,7 @@ fn opGreaterThan(vm: *VM) !void {
 }
 
 fn opLessThanEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (y <= x) 1 else 0;
@@ -141,6 +156,7 @@ fn opLessThanEq(vm: *VM) !void {
 }
 
 fn opGreaterThanEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (y >= x) 1 else 0;
@@ -148,6 +164,7 @@ fn opGreaterThanEq(vm: *VM) !void {
 }
 
 fn opNotEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
     const x = try vm.stack.pop();
     const y = try vm.stack.pop();
     const res: i64 = if (y != x) 1 else 0;

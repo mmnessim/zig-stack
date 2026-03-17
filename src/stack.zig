@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const Value = @import("token.zig").Value;
+
 pub const Stack = struct {
     items: [256]i64 = undefined,
     top: usize = 0, // next position to be filled
