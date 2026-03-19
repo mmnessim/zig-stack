@@ -13,21 +13,26 @@ pub const VM = struct {
         return .{ .allocator = allocator };
     }
 
-    pub fn eval(self: *VM, tokens: []Token) !void {
+    pub fn eval(vm: *VM, tokens: []Token) !void {
         for (tokens) |tok| {
             switch (tok) {
-                .value => |v| {
-                    try self.stack.push(v);
+                .value => |v| switch (v) {
+                    .string => |s| {
+                        const owned = try vm.allocator.dupe(u8, s);
+                        try vm.stack.push(.{ .string = owned });
+                    },
+                    .number => |n| try vm.stack.push(.{ .number = n }),
+                    .boolean => |b| try vm.stack.push(.{ .boolean = b }),
                 },
-                .word => |w| try self.execWord(w),
+                .word => |w| try vm.execWord(w),
                 .eof => break,
             }
         }
     }
 
-    pub fn execWord(self: *VM, word: []const u8) !void {
+    pub fn execWord(vm: *VM, word: []const u8) !void {
         if (builtins.get(word)) |op| {
-            try op(self);
+            try op(vm);
         } else {
             return error.UnknownWord;
         }

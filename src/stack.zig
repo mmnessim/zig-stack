@@ -33,7 +33,7 @@ pub const Stack = struct {
         const x = try self.pop();
         const y = try self.pop();
         if (x == .number and y == .number) {
-            try self.push(x + y);
+            try self.push(.{ .number = x.number + y.number });
         } else {
             return error.TypeError;
         }

@@ -30,7 +30,11 @@ pub fn repl(vm: *VM) !void {
             try vm.stack.print_stack(stdout);
             continue;
         }
-        var lexer = Lexer{ .allocator = vm.allocator, .input = trimmed, .position = 0 };
+        const line_copy = try vm.allocator.dupe(u8, trimmed);
+        defer vm.allocator.free(line_copy);
+
+        var lexer = Lexer{ .allocator = vm.allocator, .input = line_copy, .position = 0 };
+
         const tokens = try lexer.tokenize();
         defer vm.allocator.free(tokens);
         vm.eval(tokens) catch |err| {

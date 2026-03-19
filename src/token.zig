@@ -4,10 +4,11 @@ pub const Value = union(enum) {
     number: i64,
     string: []const u8,
     boolean: bool,
+
     pub fn format(self: Value, writer: *std.Io.Writer) !void {
         switch (self) {
             .number => |n| try writer.print("{}", .{n}),
-            .string => |s| try writer.print("{s}", .{s}),
+            .string => |s| try writer.writeAll(s),
             .boolean => |b| try writer.print("{}", .{b}),
         }
     }
