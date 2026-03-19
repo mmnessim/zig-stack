@@ -39,19 +39,19 @@ const builtins = std.StaticStringMap(*const fn (*VM) anyerror!void).initComptime
     .{ "-", &opSubtract },
     .{ "*", &opMult },
     .{ "/", &opDiv },
-    // .{ "mod", &opMod },
-    // .{ "=", &opEq },
-    // .{ "<", &opLessThan },
-    // .{ "<=", &opLessThanEq },
-    // .{ ">", &opGreaterThan },
-    // .{ ">=", &opGreaterThanEq },
-    // .{ "!=", &opNotEq },
+    .{ "mod", &opMod },
+    .{ "=", &opEq },
+    .{ "<", &opLessThan },
+    .{ "<=", &opLessThanEq },
+    .{ ">", &opGreaterThan },
+    .{ ">=", &opGreaterThanEq },
+    .{ "!=", &opNotEq },
     .{ ".", &opDot },
     .{ "dup", &opDup },
-    // .{ "swap", &opSwap },
-    // .{ "drop", &opDrop },
-    // .{ "over", &opOver },
-    // .{ "clear", &opClear },
+    .{ "swap", &opSwap },
+    .{ "drop", &opDrop },
+    .{ "over", &opOver },
+    .{ "clear", &opClear },
     .{ "bye", &opQuit },
 });
 
@@ -68,23 +68,23 @@ fn opDup(vm: *VM) !void {
     try vm.stack.push(try vm.stack.peek());
 }
 
-// fn opDrop(vm: *VM) !void {
-//     _ = try vm.stack.pop();
-// }
+fn opDrop(vm: *VM) !void {
+    _ = try vm.stack.pop();
+}
 
-// fn opOver(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     try vm.stack.push(vm.stack.items[vm.stack.top - 2]);
-// }
+fn opOver(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
+    try vm.stack.push(vm.stack.items[vm.stack.top - 2]);
+}
 
-// fn opSwap(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     try vm.stack.swap();
-// }
+fn opSwap(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
+    try vm.stack.swap();
+}
 
-// fn opClear(vm: *VM) !void {
-//     vm.stack.top = 0;
-// }
+fn opClear(vm: *VM) !void {
+    vm.stack.top = 0;
+}
 
 fn opAdd(vm: *VM) !void {
     const v = try popTwo(vm, i64);
@@ -106,60 +106,44 @@ fn opDiv(vm: *VM) !void {
     try vm.stack.push(Value{ .number = @divTrunc(v.y, v.x) });
 }
 
-// fn opMod(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     try vm.stack.push(@rem(y, x));
-// }
+fn opMod(vm: *VM) !void {
+    const v = try popTwo(vm, i64);
+    try vm.stack.push(Value{ .number = @rem(v.y, v.x) });
+}
 
-// fn opEq(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (y == x) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(Value{ .boolean = std.meta.eql(x, y) });
+}
 
-// fn opLessThan(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (y < x) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opLessThan(vm: *VM) !void {
+    const v = try popTwo(vm, i64);
+    try vm.stack.push(Value{ .boolean = v.y < v.x });
+}
 
-// fn opGreaterThan(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (x > y) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opGreaterThan(vm: *VM) !void {
+    const v = try popTwo(vm, i64);
+    try vm.stack.push(Value{ .boolean = v.y > v.x });
+}
 
-// fn opLessThanEq(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (y <= x) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opLessThanEq(vm: *VM) !void {
+    const v = try popTwo(vm, i64);
+    try vm.stack.push(Value{ .boolean = v.y <= v.x });
+}
 
-// fn opGreaterThanEq(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (y >= x) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opGreaterThanEq(vm: *VM) !void {
+    const v = try popTwo(vm, i64);
+    try vm.stack.push(Value{ .boolean = v.y <= v.x });
+}
 
-// fn opNotEq(vm: *VM) !void {
-//     if (vm.stack.top < 2) return error.StackUnderflow;
-//     const x = try vm.stack.pop();
-//     const y = try vm.stack.pop();
-//     const res: i64 = if (y != x) 1 else 0;
-//     try vm.stack.push(res);
-// }
+fn opNotEq(vm: *VM) !void {
+    if (vm.stack.top < 2) return error.StackUnderflow;
+    const x = try vm.stack.pop();
+    const y = try vm.stack.pop();
+    try vm.stack.push(Value{ .boolean = !std.meta.eql(x, y) });
+}
 
 fn popTwo(vm: *VM, comptime T: type) !struct { x: T, y: T } {
     if (vm.stack.top < 2) return error.StackUnderflow;

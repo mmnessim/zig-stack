@@ -25,7 +25,7 @@ pub const Stack = struct {
 
     pub fn swap(self: *Stack) !void {
         if (self.top < 2) return error.StackUnderflow;
-        std.mem.swap(i64, &self.items[self.top - 1], &self.items[self.top - 2]);
+        std.mem.swap(Value, &self.items[self.top - 1], &self.items[self.top - 2]);
     }
 
     pub fn add(self: *Stack) !void {
