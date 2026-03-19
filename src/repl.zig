@@ -3,6 +3,7 @@ const std = @import("std");
 const Stack = @import("stack.zig").Stack;
 const tokenize = @import("token.zig").tokenize;
 const VM = @import("vm.zig").VM;
+const Lexer = @import("lexer.zig").Lexer;
 
 pub fn repl(vm: *VM) !void {
     const s = Stack{};
@@ -29,7 +30,8 @@ pub fn repl(vm: *VM) !void {
             try vm.stack.print_stack(stdout);
             continue;
         }
-        const tokens = try tokenize(trimmed, vm.allocator);
+        var lexer = Lexer{ .allocator = vm.allocator, .input = trimmed, .position = 0 };
+        const tokens = try lexer.tokenize();
         defer vm.allocator.free(tokens);
         vm.eval(tokens) catch |err| {
             std.debug.print("{}\n", .{err});
