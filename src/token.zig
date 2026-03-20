@@ -12,6 +12,14 @@ pub const Value = union(enum) {
             .boolean => |b| try writer.print("{}", .{b}),
         }
     }
+
+    pub fn typeof(self: Value) []const u8 {
+        switch (self) {
+            .number => return "number",
+            .string => return "string",
+            .boolean => return "boolean",
+        }
+    }
 };
 
 pub const Token = union(enum) {

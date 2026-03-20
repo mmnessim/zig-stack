@@ -1,6 +1,7 @@
 const std = @import("std");
 const eql = std.mem.eql;
 
+const http_words = @import("libs/http.zig").http_words;
 const Stack = @import("stack.zig").Stack;
 const Token = @import("token.zig").Token;
 const Value = @import("token.zig").Value;
@@ -8,6 +9,7 @@ const Value = @import("token.zig").Value;
 pub const VM = struct {
     stack: Stack = Stack{},
     allocator: std.mem.Allocator,
+    // dictionary: std.StringHashMap(*const fn (*VM) anyerror!void),
 
     pub fn init(allocator: std.mem.Allocator) VM {
         return .{ .allocator = allocator };
@@ -31,8 +33,17 @@ pub const VM = struct {
     }
 
     pub fn execWord(vm: *VM, word: []const u8) !void {
+        // if (vm.dictionary.get(word)) |op| {
+        //     try op(vm);
+        //     return;
+        // }
+        if (http_words.get(word)) |op| {
+            try op(vm);
+            return;
+        }
         if (builtins.get(word)) |op| {
             try op(vm);
+            return;
         } else {
             return error.UnknownWord;
         }
