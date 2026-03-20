@@ -36,7 +36,7 @@ fn opGet(vm: *VM) !void {
         .redirect_buffer = &redirect_buffer,
         .response_writer = &writer.writer,
     }) catch |err| {
-        std.debug.print("Error fetching {f}: {any}", .{ url, err });
+        std.debug.print("Error fetching {f}: {any}\n", .{ url, err });
         return;
     };
 
